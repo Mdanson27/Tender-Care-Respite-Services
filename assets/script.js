@@ -95,14 +95,18 @@
     'Schedule Changes':'Additional hours or changed times only become part of the booking once Tender Care confirms availability.',
     'Call Tender Care':'A direct conversation is the fastest way to discuss services, availability and family-specific questions.',
     'Edmonton Address':'Tender Care Respite Services is listed at 12245 95 St, Edmonton, Alberta.',
-    'Directions':'Use the map link for navigation and confirm any planned care arrangement before travelling.'
+    'Directions':'Use the map link for navigation and confirm any planned care arrangement before travelling.',
+    'Child-centred':'Care decisions should begin with the individual child’s routines, strengths, comfort and communication needs.',
+    'Family-focused':'Respite should fit the realities of family life while keeping parents and caregivers informed and involved.',
+    'Inclusive':'Respect for ability, culture, communication and individual difference helps children feel that they belong.',
+    'Reliable':'Clear expectations, scheduling and communication help families know what they can depend on.'
   };
 
-  const candidates=document.querySelectorAll('.service-tile,.audience-card,.service-card,.value-card,.policy-card,.principle,.contact-card');
+  const candidates=document.querySelectorAll('.service-tile,.audience-card,.service-card,.value-card,.policy-card,.principle,.contact-card,.mission-panel,.process-step,.proof-item');
   candidates.forEach(card=>{
     if(card.querySelector('.card-reveal'))return;
-    const heading=card.querySelector('h3,h4,b');
-    const paragraph=card.querySelector('p');
+    const heading=card.querySelector('h2,h3,h4,strong,b');
+    const paragraph=card.querySelector('p')||card.querySelector('span:not(.proof-icon):not(.tag):not(.flip-hint)');
     if(!heading||!paragraph)return;
     const title=heading.textContent.trim();
     const detail=flipCopy[title]||paragraph.textContent.trim();
