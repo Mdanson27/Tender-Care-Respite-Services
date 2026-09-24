@@ -798,3 +798,147 @@ body.is-loading{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   .manifesto-colour,.loader-name .care-word{animation:none!important;background-position:45% 50%}
 }
+
+
+/* ===== Homepage hero simplification: full-width centered brand statement ===== */
+.executive-hero--statement{
+  min-height:calc(100vh - 127px);
+  display:grid;
+  place-items:center;
+  padding:88px 0 104px;
+  background:
+    radial-gradient(circle at 18% 18%,rgba(230,67,53,.055),transparent 23%),
+    radial-gradient(circle at 82% 22%,rgba(13,127,180,.075),transparent 24%),
+    radial-gradient(circle at 72% 82%,rgba(118,65,184,.05),transparent 22%),
+    linear-gradient(180deg,#fff 0%,#f8fafb 100%);
+}
+.executive-hero--statement::before{
+  opacity:.5;
+  background-image:
+    linear-gradient(rgba(8,43,73,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(8,43,73,.025) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(circle at center,black 0 48%,transparent 84%);
+}
+.hero-statement{
+  position:relative;
+  z-index:2;
+  width:min(1160px,calc(100% - 48px));
+  margin-inline:auto;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.hero-statement .hero-kicker{margin-bottom:28px}
+.hero-statement h1{
+  max-width:1140px;
+  margin-inline:auto;
+  font-size:clamp(3.8rem,6.8vw,7.4rem);
+  line-height:.92;
+  text-wrap:balance;
+}
+.hero-statement h1 .accent{
+  display:inline;
+  background:
+    linear-gradient(
+      90deg,
+      var(--red) 0%,
+      var(--orange) 14%,
+      #e8bd1f 28%,
+      var(--green) 43%,
+      var(--blue) 59%,
+      var(--violet) 76%,
+      var(--red) 100%
+    );
+  background-size:320% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:hero-spectrum-flow 7s linear infinite;
+}
+.hero-statement .hero-lead{
+  max-width:880px;
+  margin:30px auto 0;
+  font-size:clamp(1.08rem,1.6vw,1.28rem);
+}
+.hero-statement .hero-actions{
+  justify-content:center;
+  margin-top:34px;
+}
+.hero-statement .hero-meta{
+  justify-content:center;
+  margin-top:28px;
+}
+.hero-statement::after{
+  content:'';
+  width:min(360px,46vw);
+  height:4px;
+  margin-top:34px;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--red),var(--orange),#f5c71f,var(--green),var(--blue),var(--violet));
+  background-size:220% 100%;
+  animation:hero-rule-flow 7s linear infinite;
+  opacity:.72;
+}
+@keyframes hero-spectrum-flow{
+  0%{background-position:0% 50%}
+  100%{background-position:320% 50%}
+}
+@keyframes hero-rule-flow{
+  0%{background-position:0% 50%}
+  100%{background-position:220% 50%}
+}
+
+/* The removed visual should never reserve layout space if stale markup is cached. */
+.executive-hero--statement .hero-visual,
+.executive-hero--statement .care-orbit,
+.executive-hero--statement .hero-side-note{display:none!important}
+
+@media(max-width:920px){
+  .executive-hero--statement{
+    min-height:auto;
+    padding:78px 0 96px;
+  }
+  .hero-statement{
+    width:min(100% - 34px,1000px);
+  }
+  .hero-statement h1{
+    font-size:clamp(3rem,10.5vw,5.4rem);
+    line-height:.95;
+  }
+  .hero-statement .hero-lead{max-width:760px}
+}
+@media(max-width:640px){
+  .executive-hero--statement{padding:58px 0 82px}
+  .hero-statement{width:min(100% - 28px,1000px)}
+  .hero-statement h1{
+    font-size:clamp(2.7rem,14vw,4.25rem);
+    line-height:.96;
+  }
+  .hero-statement .hero-kicker{margin-bottom:22px}
+  .hero-statement .hero-lead{font-size:1.03rem;margin-top:24px}
+  .hero-statement .hero-actions{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+    margin-top:28px;
+  }
+  .hero-statement .hero-actions .btn{width:100%}
+  .hero-statement .hero-meta{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+    justify-items:center;
+    margin-top:22px;
+  }
+  .hero-statement::after{width:min(260px,62vw);margin-top:28px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-statement h1 .accent,
+  .hero-statement::after{
+    animation:none!important;
+    background-position:52% 50%;
+  }
+}
