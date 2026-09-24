@@ -460,3 +460,341 @@ body.is-loading{overflow:hidden}
 .icon-disc{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);font-weight:900}
 .contact-card .icon-disc{margin:0 auto 18px}
 .kicker{color:var(--muted);max-width:760px}
+
+
+/* ===== Refinement: loader, animated manifesto, interactive flip cards ===== */
+
+/* A calmer hero scale on large displays */
+.executive-hero h1{font-size:clamp(3.2rem,5.35vw,5.75rem)}
+.editorial-split{grid-template-columns:.88fr 1.12fr;gap:64px}
+
+/* Replace the orphan section number with living brand language */
+.editorial-manifesto{
+  position:sticky;
+  top:150px;
+  align-self:start;
+  padding:28px 0;
+}
+.manifesto-small{
+  display:block;
+  margin-bottom:16px;
+  color:#8194a2;
+  font-size:.7rem;
+  font-weight:900;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+.manifesto-colour{
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(2.05rem,3.15vw,3.85rem);
+  line-height:1.02;
+  font-weight:700;
+  letter-spacing:-.035em;
+  background:linear-gradient(
+    100deg,
+    var(--red) 0%,
+    var(--orange) 15%,
+    #e8bd1f 30%,
+    var(--green) 46%,
+    var(--blue) 62%,
+    var(--violet) 78%,
+    var(--red) 100%
+  );
+  background-size:260% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:tender-colour-flow 8s linear infinite;
+}
+.manifesto-note{
+  max-width:355px;
+  margin-top:22px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:.88rem;
+}
+@keyframes tender-colour-flow{
+  0%{background-position:0% 50%}
+  100%{background-position:260% 50%}
+}
+
+/* Phone treatment */
+.phone-icon{
+  width:24px;height:24px;
+  display:inline-grid;place-items:center;
+  flex:0 0 24px;
+  border-radius:50%;
+  background:rgba(13,127,180,.11);
+  color:var(--blue);
+  font-size:.78rem;
+  line-height:1;
+}
+.btn .phone-icon{background:rgba(255,255,255,.15);color:inherit}
+.btn-secondary .phone-icon{background:var(--blue-soft);color:var(--blue)}
+.topbar .phone-icon{width:20px;height:20px;flex-basis:20px;background:rgba(255,255,255,.11);color:#fff;font-size:.65rem}
+.topbar a[href^="tel:"]{display:inline-flex;align-items:center;gap:7px}
+
+/* Cards now turn to reveal a second, explanatory face */
+.interactive-card{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden!important;
+  cursor:pointer;
+  transform-style:preserve-3d;
+  perspective:1000px;
+  transition:transform .34s cubic-bezier(.2,.76,.25,1),box-shadow .34s ease,border-color .34s ease;
+}
+.interactive-card:hover,
+.interactive-card.is-flipped{
+  transform:translateY(-6px) rotateY(-1.6deg);
+  box-shadow:0 26px 58px rgba(6,31,53,.14);
+  border-color:#c5d8e1;
+}
+.interactive-card > *:not(.card-reveal){position:relative;z-index:1}
+.card-reveal{
+  position:absolute;
+  inset:0;
+  z-index:8;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:30px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 90% 10%,rgba(255,255,255,.14),transparent 26%),
+    linear-gradient(145deg,#061f35 0%,#0b4165 58%,#0d7fb4 100%);
+  border-radius:inherit;
+  opacity:0;
+  transform:translateX(102%) rotateY(-12deg);
+  transform-origin:right center;
+  transition:transform .42s cubic-bezier(.18,.82,.22,1),opacity .24s ease;
+  backface-visibility:hidden;
+}
+.card-reveal::before{
+  content:'';
+  position:absolute;
+  inset:0 0 auto;
+  height:5px;
+  background:linear-gradient(90deg,var(--red),var(--orange),#f5c71f,var(--green),var(--blue),var(--violet));
+}
+.interactive-card:hover .card-reveal,
+.interactive-card:focus-within .card-reveal,
+.interactive-card.is-flipped .card-reveal{
+  opacity:1;
+  transform:translateX(0) rotateY(0);
+}
+.card-reveal-label{
+  margin-bottom:12px;
+  color:#92d4ee;
+  font-size:.66rem;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.card-reveal h4{
+  margin-bottom:10px;
+  color:#fff;
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:1.35rem;
+  line-height:1.15;
+}
+.card-reveal p{
+  margin:0!important;
+  color:#d5e3eb!important;
+  font-size:.9rem!important;
+  line-height:1.6;
+}
+.flip-hint{
+  position:absolute;
+  right:14px;
+  bottom:12px;
+  z-index:3;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#f2f7f9;
+  color:#758a98;
+  font-size:.6rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  pointer-events:none;
+}
+.interactive-card:hover .flip-hint,
+.interactive-card.is-flipped .flip-hint{opacity:0}
+.executive-band .flip-hint{background:rgba(255,255,255,.1);color:#b9d1df}
+.executive-band .card-reveal{background:linear-gradient(145deg,#fff7e8,#f4c34b);color:var(--navy-deep)}
+.executive-band .card-reveal-label{color:#8e6111}
+.executive-band .card-reveal h4{color:var(--navy-deep)}
+.executive-band .card-reveal p{color:#594b2d!important}
+
+/* Loader: emblem only first, then clean HTML brand name — no logo text clipping */
+body.is-loading{overflow:hidden}
+.site-loader{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:#fff;
+  isolation:isolate;
+}
+.site-loader::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 50% 38%,rgba(13,127,180,.08),transparent 22%),
+    radial-gradient(circle at 50% 46%,rgba(213,168,61,.055),transparent 34%),
+    linear-gradient(rgba(8,43,73,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(8,43,73,.022) 1px,transparent 1px);
+  background-size:auto,auto,74px 74px,74px 74px;
+  mask-image:radial-gradient(circle at center,black,transparent 74%);
+  pointer-events:none;
+}
+.loader-brand{
+  position:relative;
+  width:min(470px,88vw);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  transform:translateY(-1.5vh);
+}
+.loader-emblem-window{
+  position:relative;
+  width:min(360px,74vw);
+  aspect-ratio:1/.625;
+  overflow:hidden;
+  margin-bottom:12px;
+  opacity:0;
+  transform:scale(.72);
+  animation:loader-emblem-in 1.16s .08s cubic-bezier(.18,.86,.23,1) forwards;
+  filter:drop-shadow(0 18px 34px rgba(8,43,73,.12));
+}
+.loader-emblem-window::after{
+  content:'';
+  position:absolute;
+  left:50%;top:48%;
+  width:61%;
+  aspect-ratio:1;
+  border-radius:50%;
+  border:1px solid rgba(13,127,180,.16);
+  transform:translate(-50%,-50%) scale(.7);
+  opacity:0;
+  animation:loader-ring 1.2s .28s ease-out forwards;
+  box-shadow:0 0 0 18px rgba(13,127,180,.025),0 0 0 38px rgba(213,168,61,.014);
+}
+.loader-emblem-window img{
+  width:100%;
+  height:auto;
+  display:block;
+  transform:translateY(-1.4%);
+}
+.loader-name{
+  opacity:0;
+  transform:translateY(22px);
+  font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(2.5rem,7vw,4.4rem);
+  line-height:.95;
+  font-weight:700;
+  letter-spacing:-.045em;
+  color:var(--navy-deep);
+  animation:loader-copy-up .62s 1.14s cubic-bezier(.2,.78,.22,1) forwards;
+}
+.loader-name .care-word{
+  background:linear-gradient(90deg,var(--red),var(--orange),#e8bd1f,var(--green),var(--blue),var(--violet),var(--red));
+  background-size:260% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:tender-colour-flow 5.5s linear infinite;
+}
+.loader-service{
+  margin-top:10px;
+  opacity:0;
+  transform:translateY(14px);
+  color:var(--blue);
+  font-size:clamp(.7rem,2vw,.98rem);
+  font-weight:900;
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  animation:loader-copy-up .5s 1.5s ease forwards;
+}
+.loader-mantra{
+  margin-top:15px;
+  opacity:0;
+  color:#8295a3;
+  font-size:clamp(.52rem,1.5vw,.68rem);
+  font-weight:900;
+  letter-spacing:.19em;
+  text-transform:uppercase;
+  animation:loader-fade .45s 1.84s ease forwards;
+}
+.loader-progress{
+  position:relative!important;
+  left:auto!important;
+  bottom:auto!important;
+  width:min(220px,48vw)!important;
+  height:3px!important;
+  margin-top:24px;
+  transform:none!important;
+  border-radius:999px;
+  overflow:hidden;
+  background:#e7eef2;
+  opacity:0;
+  animation:loader-fade .2s 1.98s forwards!important;
+}
+.loader-progress span{
+  display:block;
+  width:100%;
+  height:100%;
+  transform:scaleX(0);
+  transform-origin:left;
+  background:linear-gradient(90deg,var(--red),var(--orange),#f5c71f,var(--green),var(--blue),var(--violet));
+  animation:loader-progress-fill 1.12s 2.03s cubic-bezier(.2,.75,.2,1) forwards!important;
+}
+.site-loader.is-leaving{
+  pointer-events:none;
+  animation:loader-curtain-away .65s cubic-bezier(.7,0,.18,1) forwards!important;
+}
+.site-loader.is-leaving .loader-brand{animation:loader-brand-away .3s ease forwards}
+@keyframes loader-emblem-in{
+  0%{opacity:0;transform:scale(.72) rotate(-4deg);filter:blur(6px)}
+  62%{opacity:1;transform:scale(1.035) rotate(.6deg);filter:blur(0)}
+  100%{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}
+}
+@keyframes loader-ring{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.66)}
+  35%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}
+}
+@keyframes loader-copy-up{to{opacity:1;transform:translateY(0)}}
+@keyframes loader-fade{to{opacity:1}}
+@keyframes loader-progress-fill{to{transform:scaleX(1)}}
+@keyframes loader-brand-away{to{opacity:0;transform:translateY(-12px) scale(.985)}}
+@keyframes loader-curtain-away{to{transform:translateY(-103%);visibility:hidden}}
+
+@media(max-width:920px){
+  .editorial-manifesto{position:relative;top:auto;padding:0 0 8px}
+  .manifesto-colour{font-size:clamp(2.25rem,7vw,3.5rem)}
+}
+@media(max-width:640px){
+  .executive-hero h1{font-size:clamp(2.7rem,13.4vw,4.1rem)}
+  .manifesto-colour{font-size:clamp(2rem,10vw,3rem)}
+  .loader-brand{width:min(420px,92vw)}
+  .loader-emblem-window{width:min(320px,80vw)}
+  .loader-service{letter-spacing:.25em}
+  .card-reveal{padding:24px}
+  .flip-hint{font-size:.55rem}
+}
+@media(hover:none){
+  .interactive-card:hover{transform:none;box-shadow:inherit}
+  .interactive-card:hover .card-reveal{opacity:0;transform:translateX(102%) rotateY(-12deg)}
+  .interactive-card.is-flipped{transform:translateY(-4px)}
+  .interactive-card.is-flipped .card-reveal{opacity:1;transform:translateX(0) rotateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .manifesto-colour,.loader-name .care-word{animation:none!important;background-position:45% 50%}
+}
