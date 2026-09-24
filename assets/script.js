@@ -114,13 +114,7 @@
     card.tabIndex=0;
     card.setAttribute('role','button');
     card.setAttribute('aria-expanded','false');
-
-    const hint=document.createElement('span');
-    hint.className='flip-hint';
-    hint.textContent=window.matchMedia('(hover:none)').matches?'Tap to explore':'Hover to explore';
-    card.appendChild(hint);
-
-    const reveal=document.createElement('div');
+const reveal=document.createElement('div');
     reveal.className='card-reveal';
     reveal.setAttribute('aria-hidden','true');
     reveal.innerHTML='<span class="card-reveal-label">Why it matters</span><h4></h4><p></p>';
