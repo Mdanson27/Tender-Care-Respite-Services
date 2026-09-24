@@ -1,4 +1,20 @@
 (function () {
+  const loader = document.getElementById('site-loader');
+  if (loader) {
+    const started = performance.now();
+    const minimumVisible = 2350;
+    const releaseLoader = () => {
+      const elapsed = performance.now() - started;
+      window.setTimeout(() => {
+        loader.classList.add('is-leaving');
+        document.body.classList.remove('is-loading');
+        window.setTimeout(() => loader.remove(), 820);
+      }, Math.max(0, minimumVisible - elapsed));
+    };
+    if (document.readyState === 'complete') releaseLoader();
+    else window.addEventListener('load', releaseLoader, { once: true });
+  }
+
   const toggle = document.querySelector('.nav-toggle');
   const links = document.querySelector('.nav-links');
   if (toggle && links) {
