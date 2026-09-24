@@ -1,0 +1,8 @@
+{
+  "name": "Tender Care Respite Services",
+  "short_name": "Tender Care",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#063a70"
+}
