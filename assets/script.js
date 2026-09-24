@@ -1,4 +1,5 @@
 (function(){
+  document.querySelectorAll('.flip-hint').forEach(el=>el.remove());
   const loader=document.getElementById('site-loader');
   if(loader){
     const started=performance.now();
@@ -123,6 +124,7 @@ const reveal=document.createElement('div');
     card.appendChild(reveal);
 
     const toggleCard=()=>{
+      document.querySelectorAll('.interactive-card.is-flipped').forEach(other=>{if(other!==card){other.classList.remove('is-flipped');other.setAttribute('aria-expanded','false');const r=other.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden','true')}});
       const open=card.classList.toggle('is-flipped');
       card.setAttribute('aria-expanded',String(open));
       reveal.setAttribute('aria-hidden',String(!open));
@@ -143,6 +145,17 @@ const reveal=document.createElement('div');
         card.setAttribute('aria-expanded','false');
         reveal.setAttribute('aria-hidden','true');
       }
+    });
+  });
+
+  document.addEventListener('click',e=>{
+    if(!window.matchMedia('(hover:none)').matches)return;
+    if(e.target.closest('.interactive-card'))return;
+    document.querySelectorAll('.interactive-card.is-flipped').forEach(card=>{
+      card.classList.remove('is-flipped');
+      card.setAttribute('aria-expanded','false');
+      const r=card.querySelector('.card-reveal');
+      if(r)r.setAttribute('aria-hidden','true');
     });
   });
 
