@@ -450,3 +450,13 @@ body.is-loading{overflow:hidden}
   body::before,.topbar,.site-header,.site-footer,.floating-call,.back-top,.site-loader,.page-hero,.no-print{display:none!important}
   body{background:#fff}.section{padding:0}.form-shell{border:0;box-shadow:none;padding:0}.container{width:100%}
 }
+
+
+/* Compatibility polish for detail-page cards */
+.service-card{position:relative;overflow:hidden;min-height:250px;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.service-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:#cbdbe3}
+.service-card .num{font-family:'Playfair Display',Georgia,serif;font-size:2.35rem;line-height:1;color:#d5e2e8;font-weight:700;margin-bottom:36px}
+.service-card::after{content:'';position:absolute;right:-35px;bottom:-45px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(13,127,180,.10),transparent 68%)}
+.icon-disc{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue);font-weight:900}
+.contact-card .icon-disc{margin:0 auto 18px}
+.kicker{color:var(--muted);max-width:760px}
