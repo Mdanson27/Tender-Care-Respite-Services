@@ -1,31 +1,36 @@
 # Tender Care Respite Services
 
-Professional static website for **Tender Care Respite Services**, Edmonton, Alberta.
+Professional responsive website for **Tender Care Respite Services**, Edmonton, Alberta.
 
-## Website
+## Live-site structure
 
-Designed for GitHub Pages and built with semantic HTML, responsive CSS and lightweight JavaScript. No build step is required.
+- `index.html` — Home
+- `about.html` — Mission, vision, values and goals
+- `services.html` — Complete service offering and service-scope note
+- `families.html` — Who we serve and how care begins
+- `policies.html` — Scheduling, cancellation and service-scope policies
+- `intake.html` — Privacy-conscious family intake worksheet with Print / Save PDF and Copy Summary
+- `contact.html` — Phone, full address, directions and map
+- `assets/styles.css` — Responsive premium brand design
+- `assets/script.js` — Mobile navigation, animation and intake tools
 
-## Pages
+The original Tender Care logo is used directly from `Tender Care logo.png`.
 
-- Home
-- About
-- Services
-- Who We Serve / Families
-- Policies
-- Family Intake
-- Contact
+## GitHub Pages
 
-## Deployment
+This repository is ready to publish from:
 
-GitHub Pages can publish directly from the `main` branch at the repository root.
+**Branch:** `main`  
+**Folder:** `/(root)`
 
-Expected public URL after Pages is enabled:
+Expected Pages URL:
 
-`https://mdanson27.github.io/Tender-Care-Respite-Services/`
+https://mdanson27.github.io/Tender-Care-Respite-Services/
 
-## Contact
+## Business contact
 
-Tender Care Respite Services  
-12245 95 St, Edmonton, AB T5G 1N1  
+**Tender Care Respite Services**  
+12245 95 St, Edmonton, AB T5G 1N1, Canada  
 780-616-2248
+
+**Slogan:** Tender Care, Brighter Days.
