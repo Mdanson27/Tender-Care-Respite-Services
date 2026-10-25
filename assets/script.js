@@ -1,7 +1,6 @@
 (function(){
   'use strict';
 
-  /* Repair any mojibake introduced during route migration before the loader exits. */
   const repairs=[
     [/\u00e2\u20ac\u00a2/g,'\u2022'],
     [/\u00e2\u02dc\u00b0/g,'\u2630'],
@@ -21,6 +20,7 @@
     return next;
   };
   const sanitizeDocument=()=>{
+    if(!document.body)return;
     const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     const nodes=[];
     while(walker.nextNode()){
@@ -36,21 +36,27 @@
     });
   };
   sanitizeDocument();
-
   document.querySelectorAll('.flip-hint').forEach(el=>el.remove());
 
-  /* Loader appears on every real page load/refresh, but remains brief for speed. */
+  /* The branded loader belongs ONLY to the homepage. It plays fully on every
+     homepage visit/refresh, then reveals the site after assets are ready. */
+  const isHome=document.body.classList.contains('page-home');
   const loader=document.getElementById('site-loader');
-  if(loader){
+  if(!isHome){
+    loader?.remove();
+    document.body.classList.remove('is-loading');
+  }else if(loader){
     const started=performance.now();
+    const MIN_HOME_LOADER_MS=3200;
+    const FADE_MS=620;
     const release=()=>{
       sanitizeDocument();
-      const wait=Math.max(0,1050-(performance.now()-started));
+      const remaining=Math.max(0,MIN_HOME_LOADER_MS-(performance.now()-started));
       setTimeout(()=>{
         loader.classList.add('is-leaving');
         document.body.classList.remove('is-loading');
-        setTimeout(()=>loader.remove(),560);
-      },wait);
+        setTimeout(()=>loader.remove(),FADE_MS);
+      },remaining);
     };
     if(document.readyState==='complete')release();
     else window.addEventListener('load',release,{once:true});
@@ -63,18 +69,13 @@
   updateHeader();
   window.addEventListener('scroll',updateHeader,{passive:true});
 
-  /* Clean-route navigation additions for pages created before Team/Careers existed. */
   const nav=document.querySelector('.nav-links');
   if(nav){
     const contact=[...nav.querySelectorAll('a')].find(a=>/\/contact\/?$/.test(a.getAttribute('href')||''));
     const hasTeam=[...nav.querySelectorAll('a')].some(a=>/\/team\/?$/.test(a.getAttribute('href')||''));
     const hasCareers=[...nav.querySelectorAll('a')].some(a=>/\/careers\/?$/.test(a.getAttribute('href')||''));
-    if(contact&&!hasTeam){
-      const a=document.createElement('a');a.href='/team/';a.textContent='Team';if(document.body.classList.contains('page-team'))a.classList.add('active');nav.insertBefore(a,contact);
-    }
-    if(contact&&!hasCareers){
-      const a=document.createElement('a');a.href='/careers/';a.textContent='Careers';if(document.body.classList.contains('page-careers'))a.classList.add('active');nav.insertBefore(a,contact);
-    }
+    if(contact&&!hasTeam){const a=document.createElement('a');a.href='/team/';a.textContent='Team';if(document.body.classList.contains('page-team'))a.classList.add('active');nav.insertBefore(a,contact)}
+    if(contact&&!hasCareers){const a=document.createElement('a');a.href='/careers/';a.textContent='Careers';if(document.body.classList.contains('page-careers'))a.classList.add('active');nav.insertBefore(a,contact)}
   }
 
   document.querySelectorAll('.footer-links').forEach(list=>{
@@ -87,6 +88,7 @@
   const toggle=document.querySelector('.nav-toggle');
   const links=document.querySelector('.nav-links');
   if(toggle&&links){
+    if(!toggle.querySelector('.menu-icon-lines'))toggle.innerHTML='<span class="menu-icon-lines" aria-hidden="true"><i></i><i></i><i></i></span>';
     const closeNav=()=>{links.classList.remove('open');toggle.setAttribute('aria-expanded','false');document.body.classList.remove('nav-open')};
     toggle.setAttribute('aria-expanded','false');
     toggle.addEventListener('click',()=>{const open=links.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));document.body.classList.toggle('nav-open',open)});
@@ -102,11 +104,14 @@
 
   document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
 
+  const phoneSvg='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.6 10.8c1.8 3.5 3.1 4.8 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.3 1.2.4 2.4.6 3.7.6.5 0 .8.3.8.8V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.7c.5 0 .8.3.8.8 0 1.3.2 2.5.6 3.7.1.4 0 .8-.3 1.1l-2.2 2.2Z" fill="currentColor"/></svg>';
+  const upSvg='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 19V5m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
   document.querySelectorAll('a[href^="tel:"]:not(.floating-call)').forEach(a=>{
-    if(!a.querySelector('.phone-icon')){
-      const icon=document.createElement('span');icon.className='phone-icon';icon.setAttribute('aria-hidden','true');icon.innerHTML='&#9742;';a.prepend(icon);
-    }
+    if(!a.querySelector('.phone-icon')){const icon=document.createElement('span');icon.className='phone-icon';icon.setAttribute('aria-hidden','true');icon.innerHTML=phoneSvg;a.prepend(icon)}
   });
+  document.querySelectorAll('.floating-call').forEach(a=>{a.innerHTML=phoneSvg});
+  document.querySelectorAll('.back-top').forEach(button=>{button.innerHTML=upSvg});
 
   const flipCopy={
     'Respite Care':'Protected respite time can help caregivers rest, work, attend appointments or manage responsibilities while the child receives attentive support.',
@@ -157,9 +162,7 @@
   });
 
   const setCard=(card,open)=>{if(!card)return;card.classList.toggle('is-flipped',open);card.setAttribute('aria-expanded',String(open));const r=card.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden',String(!open))};
-  if(!canHover){
-    document.addEventListener('click',e=>{const card=e.target.closest('.interactive-card');document.querySelectorAll('.interactive-card.is-flipped').forEach(other=>{if(other!==card)setCard(other,false)});if(card&&!e.target.closest('a,button,input,textarea,select,summary'))setCard(card,!card.classList.contains('is-flipped'))});
-  }
+  if(!canHover){document.addEventListener('click',e=>{const card=e.target.closest('.interactive-card');document.querySelectorAll('.interactive-card.is-flipped').forEach(other=>{if(other!==card)setCard(other,false)});if(card&&!e.target.closest('a,button,input,textarea,select,summary'))setCard(card,!card.classList.contains('is-flipped'))})}
   document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('.interactive-card')){e.preventDefault();const card=e.target.closest('.interactive-card');setCard(card,!card.classList.contains('is-flipped'))}});
 
   const back=document.querySelector('.back-top');
