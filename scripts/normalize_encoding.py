@@ -29,14 +29,15 @@ for path in Path('.').rglob('*.html'):
     for bad, good in REPLACEMENTS.items():
         text = text.replace(bad, good)
 
-    # Keep the branded loader only on the real homepage.
     is_home = path.as_posix() == 'index.html'
     if not is_home:
+        # Remove any loader block and loading state from all non-home pages.
         text = re.sub(r'<div class="site-loader" id="site-loader".*?</div></div>\s*', '', text, count=1, flags=re.S)
         text = re.sub(r'(<body class=")is-loading\s+', r'\1', text, count=1)
         text = text.replace('<body class="is-loading">', '<body>')
+        # Repair the stray close tag left by older loader-removal output.
+        text = re.sub(r'(<body[^>]*>)\s*</div>\s*(<div class="topbar")', r'\1\n\2', text, count=1)
 
-    # Safe, non-text UI controls: no Unicode glyph can become mojibake.
     text = re.sub(
         r'(<button class="nav-toggle"[^>]*>).*?(</button>)',
         lambda m: m.group(1) + MENU_MARKUP + m.group(2),
@@ -56,11 +57,9 @@ for path in Path('.').rglob('*.html'):
         flags=re.S,
     )
 
-    # One small ASCII-safe icon stylesheet on every HTML page.
     if 'id="tc-safe-icons"' not in text:
         text = text.replace('</head>', ICON_STYLE + '</head>', 1)
 
-    # Force the newest shared runtime everywhere.
     text = re.sub(r'script\.js\?v=[0-9-]+', SCRIPT_VERSION, text)
 
     if text != original or path.read_bytes().startswith(b'\xef\xbb\xbf'):
