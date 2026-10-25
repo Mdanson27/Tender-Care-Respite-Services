@@ -1,8 +1,10 @@
 {
+  "id": "https://tendercarerespiteservices.com/",
   "name": "Tender Care Respite Services",
   "short_name": "Tender Care",
-  "start_url": "./",
+  "start_url": "https://tendercarerespiteservices.com/",
+  "scope": "https://tendercarerespiteservices.com/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#063a70"
+  "theme_color": "#25a9df"
 }
