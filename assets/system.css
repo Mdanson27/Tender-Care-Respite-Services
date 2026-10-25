@@ -1,0 +1,259 @@
+/* Tender Care Respite Services — system-level responsive and performance layer */
+:root{
+  --tc-sky:#28a9de;
+  --tc-green:#57c51e;
+  --tc-navy:#10283a;
+  --tc-deep:#071d2b;
+  --tc-text:#233b4b;
+  --tc-muted:#657c8b;
+  --tc-soft:#f5f9fb;
+  --tc-line:#dce8ee;
+  --tc-radius:20px;
+  --tc-shadow:0 14px 38px rgba(15,49,69,.09);
+}
+
+/* Core consistency */
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{overflow-x:hidden;font-family:'Questrial',Arial,sans-serif!important;color:var(--tc-text)}
+body,h1,h2,h3,h4,p,a,button,input,textarea,select{font-family:'Questrial',Arial,sans-serif!important}
+h1,h2,h3,h4{letter-spacing:0!important;font-weight:400!important}
+img{height:auto}
+main>section:not(.photo-hero):not(.page-hero):not(.family-banner){content-visibility:auto;contain-intrinsic-size:1px 760px}
+.section{padding:82px 0}
+.section.compact{padding:58px 0}
+
+/* Faster-feeling UI: restrained effects */
+.card,.service-tile,.audience-card,.principle,.policy-card,.career-role,.career-benefit,.team-profile,.org-card{box-shadow:0 9px 26px rgba(15,49,69,.055)}
+.reveal{transition-duration:.38s!important}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* Navigation: compact enough to accommodate Team + Careers */
+.nav{min-height:82px;gap:18px}
+.brand{min-width:205px}
+.brand img{width:60px;height:60px}
+.nav-links{gap:18px;font-size:.82rem;letter-spacing:.055em}
+.nav-links .btn{padding-inline:18px}
+
+/* Unified inner-page landing system */
+.page-hero{
+  position:relative;
+  isolation:isolate;
+  min-height:calc(100svh - 116px)!important;
+  min-height:calc(100dvh - 116px)!important;
+  display:flex!important;
+  align-items:center!important;
+  padding:72px 0 92px!important;
+  overflow:hidden;
+  background:#132a39!important;
+}
+.page-hero::before{
+  content:''!important;
+  position:absolute!important;
+  inset:0!important;
+  opacity:1!important;
+  background-size:cover!important;
+  background-position:center!important;
+  transform:scale(1.015);
+  z-index:-3!important;
+}
+.page-hero::after{
+  content:''!important;
+  position:absolute!important;
+  inset:0!important;
+  width:auto!important;height:auto!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  background:linear-gradient(90deg,rgba(4,20,31,.78),rgba(5,24,36,.55) 55%,rgba(5,24,36,.45))!important;
+  z-index:-2!important;
+}
+.page-hero .container{position:relative;z-index:2;width:min(1180px,calc(100% - 48px));margin:auto}
+.page-hero .breadcrumb{margin-bottom:34px;color:rgba(255,255,255,.9)!important;font-size:.95rem}
+.page-hero .breadcrumb a{color:#c9f7b1!important}
+.page-hero .overline{color:#b8f294!important;margin-bottom:24px}
+.page-hero .overline::before{background:#b8f294!important;width:50px;height:3px}
+.page-hero h1{max-width:900px;color:#fff!important;font-size:clamp(3.25rem,5.8vw,6rem)!important;line-height:1.02!important;text-wrap:balance}
+.page-hero .lead{max-width:820px;margin-top:28px;color:rgba(255,255,255,.92)!important;font-size:clamp(1.02rem,1.55vw,1.25rem);line-height:1.75}
+.page-hero .container::after{
+  content:'';
+  display:block;
+  width:150px;height:4px;
+  margin-top:34px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ef493f,#f28a20,#f4c622,#55bd38,#24a6de,#7450b8);
+}
+
+/* Hero imagery by section */
+.page-about .page-hero::before{background-image:url('../07_family_care_consultation.jpg')!important}
+.page-services .page-hero::before{background-image:url('../02_outdoor_wheelchair_support.jpg')!important}
+.page-families .page-hero::before{background-image:url('../09_caregiver_connection.jpg')!important}
+.page-policies .page-hero::before{background-image:url('../05_sensory_relaxation.jpg')!important}
+.page-contact .page-hero::before{background-image:url('../07_family_care_consultation.jpg')!important}
+.page-team .page-hero::before{background-image:url('../09_caregiver_connection.jpg')!important}
+.page-careers .page-hero::before{background-image:url('../02_outdoor_wheelchair_support.jpg')!important}
+.page-intake .page-hero::before{background-image:url('../06_supported_learning.jpg')!important}
+
+/* Flow into content instead of dead white bands */
+main>.page-hero+section{position:relative;padding-top:58px!important}
+main>.page-hero+section::before{
+  content:'';
+  position:absolute;
+  left:-3%;right:-3%;top:-38px;height:76px;
+  background:inherit;
+  border-radius:50% 50% 0 0/55% 55% 0 0;
+  pointer-events:none;
+}
+main>.page-hero+section>.container{position:relative;z-index:1}
+
+/* Homepage hero remains immersive and efficient */
+.home-photo-hero{min-height:calc(100svh - 116px)!important;min-height:calc(100dvh - 116px)!important}
+.hero-slide{will-change:auto!important}
+
+/* Team organization chart — readability + hierarchy */
+.org-chart{max-width:1080px;margin:0 auto}
+.org-level{display:flex;justify-content:center;gap:22px}
+.org-level-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;width:100%}
+.org-card{
+  width:min(100%,760px);
+  padding:32px 30px;
+  border:1px solid var(--tc-line);
+  border-radius:22px;
+  background:#fff;
+  text-align:center;
+}
+.org-card h3{font-size:clamp(1.35rem,2.6vw,2rem);line-height:1.25;color:var(--tc-navy)!important}
+.org-card p{max-width:680px;margin:12px auto 0;color:var(--tc-muted)!important;line-height:1.65}
+.org-card strong{display:block;margin-top:10px;font-size:1.12rem;font-weight:400;color:var(--tc-navy)}
+.org-label{display:block;margin-bottom:18px;color:var(--tc-green);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
+.org-card-primary{
+  color:#fff;
+  border:0;
+  background:linear-gradient(140deg,#118cb8,#2aa9df 70%,#56c51f 160%);
+  box-shadow:0 20px 50px rgba(24,141,188,.22);
+}
+.org-card-primary h3,.org-card-primary strong,.org-card-primary p{color:#fff!important}
+.org-card-primary p{opacity:.94!important;font-size:1rem}
+.org-card-primary .org-label{color:#eaffdf}
+.org-connector{width:3px;height:54px;margin:0 auto;background:linear-gradient(var(--tc-sky),var(--tc-green));border-radius:99px}
+
+/* Team profiles */
+.team-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.team-profile{display:grid;grid-template-columns:76px 1fr;gap:20px;align-items:start;padding:26px;border:1px solid var(--tc-line);border-radius:20px;background:#fff}
+.team-profile-featured{grid-column:1/-1}
+.team-avatar{width:68px;height:68px;border-radius:18px;display:grid;place-items:center;background:#e9f6fb;color:#168ebd;font-size:1rem}
+.team-avatar-logo{padding:9px;background:#fff;border:1px solid var(--tc-line)}
+.team-avatar-logo img{width:100%;height:100%;object-fit:contain}
+.team-role-tag{color:var(--tc-green);font-size:.69rem;letter-spacing:.12em;text-transform:uppercase}
+.team-profile h3{margin-top:6px;font-size:1.45rem}
+.team-profile p{color:var(--tc-muted)}
+
+/* Careers */
+.career-grid,.career-benefit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.career-role,.career-benefit{padding:27px;border:1px solid var(--tc-line);border-radius:20px;background:#fff}
+.career-role-number{display:block;color:var(--tc-green);font-size:.72rem;letter-spacing:.15em;margin-bottom:22px}
+.career-role h3,.career-benefit h3{font-size:1.3rem;margin-bottom:10px}
+.career-role p,.career-benefit p{color:var(--tc-muted)}
+.career-values{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+.career-values span{padding:8px 12px;border-radius:999px;background:#edf8e8;color:#3b8c1a;font-size:.8rem}
+.career-photo-panel{position:relative;overflow:hidden;border-radius:24px;min-height:500px}
+.career-photo-panel img{width:100%;height:100%;min-height:500px;object-fit:cover}
+.career-photo-copy{position:absolute;inset:auto 20px 20px;padding:20px;border-radius:17px;background:rgba(7,29,43,.86);color:#fff;backdrop-filter:blur(10px)}
+.career-photo-copy span{display:block;color:#b8f294;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+.career-photo-copy strong{display:block;margin-top:5px;font-weight:400}
+.career-apply{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:42px;border-radius:28px;background:linear-gradient(135deg,#118ebd,#25a9df);color:#fff}
+.career-apply h2,.career-apply p{color:#fff!important}
+.career-apply-meta{display:flex;flex-wrap:wrap;gap:12px 26px;margin:24px 0 10px}
+.career-apply-meta span{color:#fff}
+.career-apply-meta b{display:block;font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:#dff6ff}
+.career-apply-actions{display:flex;flex-wrap:wrap;gap:10px;flex:0 0 auto}
+.career-final-banner{padding:70px 0;background:#10283a;color:#fff}
+.career-final-banner h2{color:#fff!important}
+
+/* Reduce visual dead space between ordinary sections */
+.section+.section{border-top:0}
+.section-head{margin-bottom:36px}
+
+/* Tablet */
+@media(max-width:1024px){
+  .container{width:min(100% - 34px,1240px)}
+  .section{padding:70px 0}
+  .nav-links{gap:13px;font-size:.76rem}
+  .brand{min-width:180px}
+  .org-level-grid,.career-grid,.career-benefit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Mobile */
+@media(max-width:920px){
+  .topbar{height:auto}
+  .site-header{top:0}
+  .nav{min-height:76px;padding:8px 0}
+  .brand{min-width:0}
+  .brand-copy{display:none}
+  .brand img{width:58px;height:58px}
+  .nav-toggle{display:grid!important;place-items:center;width:48px;height:48px;flex:0 0 48px;border-radius:16px}
+  .nav-links{font-size:.94rem;letter-spacing:0}
+  .page-hero{
+    min-height:calc(100svh - 106px)!important;
+    min-height:calc(100dvh - 106px)!important;
+    padding:48px 0 76px!important;
+  }
+  .page-hero .container{width:calc(100% - 40px)}
+  .page-hero .breadcrumb{margin-bottom:30px;font-size:.9rem}
+  .page-hero .overline{font-size:.7rem;letter-spacing:.14em;margin-bottom:20px}
+  .page-hero h1{font-size:clamp(2.65rem,11.2vw,4.5rem)!important;line-height:1.03!important;max-width:100%}
+  .page-hero .lead{font-size:clamp(.98rem,4.2vw,1.12rem);line-height:1.72;margin-top:24px}
+  .page-hero .container::after{margin-top:26px;width:110px;height:3px}
+  main>.page-hero+section{padding-top:42px!important}
+  main>.page-hero+section::before{top:-26px;height:54px}
+  .team-profile-grid{grid-template-columns:1fr}
+  .team-profile-featured{grid-column:auto}
+  .org-level-grid{grid-template-columns:1fr}
+  .career-grid,.career-benefit-grid{grid-template-columns:1fr 1fr}
+  .career-apply{align-items:flex-start;flex-direction:column;padding:32px}
+}
+
+@media(max-width:680px){
+  .container{width:calc(100% - 28px)}
+  .section{padding:52px 0}
+  .section.compact{padding:44px 0}
+  .topbar-inner{min-height:34px}
+  .topbar-group:last-child{width:100%;justify-content:center}
+  .site-header .nav{min-height:76px}
+  .brand img{width:55px;height:55px}
+  .page-hero{
+    min-height:calc(100svh - 110px)!important;
+    min-height:calc(100dvh - 110px)!important;
+    padding:42px 0 64px!important;
+  }
+  .page-hero .container{width:calc(100% - 36px)}
+  .page-hero h1{font-size:clamp(2.55rem,11vw,3.65rem)!important}
+  .page-hero .lead{font-size:1rem!important;line-height:1.7!important}
+  .page-hero::after{background:linear-gradient(180deg,rgba(4,20,31,.65),rgba(4,20,31,.72))!important}
+  .page-about .page-hero::before,.page-team .page-hero::before{background-position:58% center!important}
+  .page-families .page-hero::before{background-position:56% center!important}
+  .page-careers .page-hero::before{background-position:57% center!important}
+  main>.page-hero+section{padding-top:32px!important}
+  main>.page-hero+section::before{top:-22px;height:46px}
+  .org-card{padding:26px 20px;border-radius:18px}
+  .org-card h3{font-size:1.55rem}
+  .org-card p{font-size:.95rem!important;line-height:1.62!important}
+  .org-card-primary p{color:#fff!important;opacity:.96!important}
+  .org-connector{height:38px}
+  .team-profile{grid-template-columns:56px 1fr;padding:20px;gap:14px}
+  .team-avatar{width:52px;height:52px;border-radius:14px}
+  .team-profile h3{font-size:1.25rem}
+  .career-grid,.career-benefit-grid{grid-template-columns:1fr}
+  .career-role,.career-benefit{padding:22px}
+  .career-photo-panel,.career-photo-panel img{min-height:380px}
+  .career-apply{padding:26px 20px;border-radius:22px}
+  .career-apply-actions{width:100%;display:grid;grid-template-columns:1fr}
+  .career-apply-actions .btn{width:100%}
+  .floating-call{width:54px;height:54px;right:14px;bottom:14px}
+  .back-top{right:19px;bottom:78px}
+}
+
+@media(max-width:420px){
+  .page-hero h1{font-size:clamp(2.35rem,10.8vw,3.25rem)!important}
+  .page-hero .container{width:calc(100% - 30px)}
+  .page-hero .breadcrumb{font-size:.84rem}
+  .org-card{padding:23px 17px}
+}
