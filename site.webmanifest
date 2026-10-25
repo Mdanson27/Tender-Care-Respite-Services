@@ -1,10 +1,19 @@
 {
-  "id": "https://tendercarerespiteservices.com/",
+  "id": "/",
   "name": "Tender Care Respite Services",
   "short_name": "Tender Care",
-  "start_url": "https://tendercarerespiteservices.com/",
-  "scope": "https://tendercarerespiteservices.com/",
+  "description": "Compassionate, safe and individualized respite support for children and families in Edmonton, Alberta.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#25a9df"
+  "theme_color": "#25a9df",
+  "icons": [
+    {
+      "src": "/Tender%20Care%20logo.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
