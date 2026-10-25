@@ -1,111 +1,90 @@
 (function(){
-  document.querySelectorAll('.flip-hint').forEach(el=>el.remove());
+  'use strict';
 
-  /* Careers + Team integration */
-  if(document.body.classList.contains('page-careers')||document.body.classList.contains('page-team')){
-    if(!document.querySelector('link[href*="careers-team.css"]')){
-      const extra=document.createElement('link');
-      extra.rel='stylesheet';
-      extra.href='assets/careers-team.css?v=20261025-1';
-      document.head.appendChild(extra);
-    }
+  /* Load the unified responsive system once. */
+  if(!document.querySelector('link[data-tc-system]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='assets/system.css?v=20261025-3';
+    link.dataset.tcSystem='true';
+    document.head.appendChild(link);
   }
 
+  document.querySelectorAll('.flip-hint').forEach(el=>el.remove());
+
+  /* Keep Team + Careers available throughout the site without duplicating markup. */
   const nav=document.querySelector('.nav-links');
   if(nav){
     const contact=nav.querySelector('a[href="contact.html"]');
     if(contact&&!nav.querySelector('a[href="team.html"]')){
       const team=document.createElement('a');
-      team.href='team.html';
-      team.textContent='Team';
+      team.href='team.html';team.textContent='Team';
       if(document.body.classList.contains('page-team'))team.classList.add('active');
       nav.insertBefore(team,contact);
     }
     if(contact&&!nav.querySelector('a[href="careers.html"]')){
       const careers=document.createElement('a');
-      careers.href='careers.html';
-      careers.textContent='Careers';
+      careers.href='careers.html';careers.textContent='Careers';
       if(document.body.classList.contains('page-careers'))careers.classList.add('active');
       nav.insertBefore(careers,contact);
     }
   }
 
   document.querySelectorAll('.footer-links').forEach(list=>{
-    const about=list.querySelector('a[href="about.html"]');
-    if(!about)return;
-    if(!list.querySelector('a[href="team.html"]')){
-      const li=document.createElement('li');li.innerHTML='<a href="team.html">Professional Team</a>';list.appendChild(li);
-    }
-    if(!list.querySelector('a[href="careers.html"]')){
-      const li=document.createElement('li');li.innerHTML='<a href="careers.html">Careers</a>';list.appendChild(li);
-    }
+    if(!list.querySelector('a[href="about.html"]'))return;
+    if(!list.querySelector('a[href="team.html"]')){const li=document.createElement('li');li.innerHTML='<a href="team.html">Professional Team</a>';list.appendChild(li)}
+    if(!list.querySelector('a[href="careers.html"]')){const li=document.createElement('li');li.innerHTML='<a href="careers.html">Careers</a>';list.appendChild(li)}
   });
 
+  /* Smart loader: brief on the first visit only, skipped during the rest of the session. */
   const loader=document.getElementById('site-loader');
   if(loader){
-    const started=performance.now();
-    const minimumVisible=3300;
-    const release=()=>{
-      const wait=Math.max(0,minimumVisible-(performance.now()-started));
-      setTimeout(()=>{
-        loader.classList.add('is-leaving');
-        document.body.classList.remove('is-loading');
-        setTimeout(()=>loader.remove(),700);
-      },wait);
-    };
-    if(document.readyState==='complete')release();
-    else window.addEventListener('load',release,{once:true});
+    let seen=false;
+    try{seen=sessionStorage.getItem('tc-loader-seen')==='1'}catch(e){}
+    if(seen){
+      loader.remove();
+      document.body.classList.remove('is-loading');
+    }else{
+      try{sessionStorage.setItem('tc-loader-seen','1')}catch(e){}
+      const started=performance.now();
+      const release=()=>{
+        const wait=Math.max(0,850-(performance.now()-started));
+        setTimeout(()=>{
+          loader.classList.add('is-leaving');
+          document.body.classList.remove('is-loading');
+          setTimeout(()=>loader.remove(),520);
+        },wait);
+      };
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',release,{once:true});
+      else release();
+    }
   }
 
   const header=document.querySelector('.site-header');
-  const updateHeader=()=>header&&header.classList.toggle('scrolled',window.scrollY>18);
+  const updateHeader=()=>header&&header.classList.toggle('scrolled',window.scrollY>12);
   updateHeader();
   window.addEventListener('scroll',updateHeader,{passive:true});
 
   const toggle=document.querySelector('.nav-toggle');
   const links=document.querySelector('.nav-links');
   if(toggle&&links){
-    toggle.addEventListener('click',()=>{
-      const open=links.classList.toggle('open');
-      toggle.setAttribute('aria-expanded',String(open));
-      toggle.textContent=open?'✕':'☰';
-      document.body.classList.toggle('nav-open',open);
-    });
-    links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
-      links.classList.remove('open');
-      toggle.setAttribute('aria-expanded','false');
-      toggle.textContent='☰';
-      document.body.classList.remove('nav-open');
-    }));
-    window.addEventListener('resize',()=>{
-      if(window.innerWidth>920){
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded','false');
-        toggle.textContent='☰';
-      }
-    });
+    const closeNav=()=>{links.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.textContent='☰';document.body.classList.remove('nav-open')};
+    toggle.addEventListener('click',()=>{const open=links.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'✕':'☰';document.body.classList.toggle('nav-open',open)});
+    links.addEventListener('click',e=>{if(e.target.closest('a'))closeNav()});
+    window.addEventListener('resize',()=>{if(window.innerWidth>920)closeNav()},{passive:true});
   }
 
-  const io='IntersectionObserver' in window?new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
-    });
-  },{threshold:.12,rootMargin:'0px 0px -30px 0px'}):null;
-  document.querySelectorAll('.reveal').forEach((el,i)=>{
-    if(!el.style.getPropertyValue('--delay'))el.style.setProperty('--delay',Math.min((i%4)*70,210)+'ms');
-    io?io.observe(el):el.classList.add('in');
-  });
+  /* Lightweight entrance reveals. */
+  const revealEls=[...document.querySelectorAll('.reveal')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -20px 0px'});
+    revealEls.forEach((el,i)=>{el.style.setProperty('--delay',Math.min((i%3)*55,110)+'ms');io.observe(el)});
+  }else revealEls.forEach(el=>el.classList.add('in'));
 
   document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
 
   document.querySelectorAll('a[href^="tel:"]:not(.floating-call)').forEach(a=>{
-    if(!a.querySelector('.phone-icon')){
-      const icon=document.createElement('span');
-      icon.className='phone-icon';
-      icon.setAttribute('aria-hidden','true');
-      icon.textContent='☎';
-      a.prepend(icon);
-    }
+    if(!a.querySelector('.phone-icon')){const icon=document.createElement('span');icon.className='phone-icon';icon.setAttribute('aria-hidden','true');icon.textContent='☎';a.prepend(icon)}
   });
 
   const flipCopy={
@@ -140,41 +119,42 @@
     'Reliable':'Clear expectations, scheduling and communication help families know what they can depend on.'
   };
 
+  const canHover=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
   const candidates=document.querySelectorAll('.service-tile,.audience-card,.service-card,.value-card,.policy-card,.principle,.contact-card,.mission-panel,.process-step,.proof-item');
   candidates.forEach(card=>{
     if(card.querySelector('.card-reveal'))return;
     const heading=card.querySelector('h2,h3,h4,strong,b');
-    const paragraph=card.querySelector('p')||card.querySelector('span:not(.proof-icon):not(.tag):not(.flip-hint)');
+    const paragraph=card.querySelector('p')||card.querySelector('span:not(.proof-icon):not(.tag)');
     if(!heading||!paragraph)return;
     const title=heading.textContent.trim();
-    const detail=flipCopy[title]||paragraph.textContent.trim();
-    card.classList.add('interactive-card');card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-expanded','false');
-    const reveal=document.createElement('div');reveal.className='card-reveal';reveal.setAttribute('aria-hidden','true');reveal.innerHTML='<span class="card-reveal-label">Why it matters</span><h4></h4><p></p>';
-    reveal.querySelector('h4').textContent=title;reveal.querySelector('p').textContent=detail;card.appendChild(reveal);
-    const toggleCard=()=>{document.querySelectorAll('.interactive-card.is-flipped').forEach(other=>{if(other!==card){other.classList.remove('is-flipped');other.setAttribute('aria-expanded','false');const r=other.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden','true')}});const open=card.classList.toggle('is-flipped');card.setAttribute('aria-expanded',String(open));reveal.setAttribute('aria-hidden',String(!open));};
-    card.addEventListener('click',e=>{if(e.target.closest('a,button,input,textarea,select,summary'))return;if(window.matchMedia('(hover:none)').matches)toggleCard();});
-    card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleCard();}});
-    card.addEventListener('mouseleave',()=>{if(!window.matchMedia('(hover:none)').matches){card.classList.remove('is-flipped');card.setAttribute('aria-expanded','false');reveal.setAttribute('aria-hidden','true');}});
+    const reveal=document.createElement('div');
+    reveal.className='card-reveal';
+    reveal.setAttribute('aria-hidden','true');
+    reveal.innerHTML='<span class="card-reveal-label">Why it matters</span><h4></h4><p></p>';
+    reveal.querySelector('h4').textContent=title;
+    reveal.querySelector('p').textContent=flipCopy[title]||paragraph.textContent.trim();
+    card.classList.add('interactive-card');card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-expanded','false');card.appendChild(reveal);
   });
 
-  document.addEventListener('click',e=>{
-    if(!window.matchMedia('(hover:none)').matches)return;
-    if(e.target.closest('.interactive-card'))return;
-    document.querySelectorAll('.interactive-card.is-flipped').forEach(card=>{card.classList.remove('is-flipped');card.setAttribute('aria-expanded','false');const r=card.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden','true');});
-  });
+  const setCard=(card,open)=>{if(!card)return;card.classList.toggle('is-flipped',open);card.setAttribute('aria-expanded',String(open));const r=card.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden',String(!open))};
+  if(!canHover){
+    document.addEventListener('click',e=>{const card=e.target.closest('.interactive-card');document.querySelectorAll('.interactive-card.is-flipped').forEach(other=>{if(other!==card)setCard(other,false)});if(card&&!e.target.closest('a,button,input,textarea,select,summary'))setCard(card,!card.classList.contains('is-flipped'))});
+  }
+  document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('.interactive-card')){e.preventDefault();const card=e.target.closest('.interactive-card');setCard(card,!card.classList.contains('is-flipped'))}});
 
   const back=document.querySelector('.back-top');
-  if(back){const state=()=>back.classList.toggle('show',window.scrollY>650);state();window.addEventListener('scroll',state,{passive:true});back.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));}
+  if(back){const state=()=>back.classList.toggle('show',window.scrollY>520);state();window.addEventListener('scroll',state,{passive:true});back.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}))}
 
   const intake=document.querySelector('#intake-form');
   if(intake){
     const status=document.querySelector('#form-status');
     document.querySelector('#print-intake')?.addEventListener('click',()=>window.print());
-    document.querySelector('#clear-intake')?.addEventListener('click',()=>{if(confirm('Clear all information entered in this form?')){intake.reset();if(status)status.style.display='none';}});
+    document.querySelector('#clear-intake')?.addEventListener('click',()=>{if(confirm('Clear all information entered in this form?')){intake.reset();if(status)status.style.display='none'}});
     document.querySelector('#copy-intake')?.addEventListener('click',async()=>{
-      const data=new FormData(intake),labels={};intake.querySelectorAll('[name]').forEach(field=>{const label=intake.querySelector(`label[for="${field.id}"]`);labels[field.name]=label?label.textContent.trim():field.name;});
-      const lines=['TENDER CARE RESPITE SERVICES — FAMILY INTAKE INFORMATION',''];for(const [key,value] of data.entries()){if(String(value).trim())lines.push(`${labels[key]||key}: ${String(value).trim()}`);}lines.push('','Parent/Guardian signature: ____________________',`Date: ${new Date().toLocaleDateString()}`);
-      try{await navigator.clipboard.writeText(lines.join('\n'));if(status){status.textContent='Intake summary copied. Contact Tender Care to arrange a secure way to provide it.';status.style.display='block';}}catch(e){alert('Copy was not available in this browser. You can use Print / Save PDF instead.');}
+      const data=new FormData(intake),labels={};
+      intake.querySelectorAll('[name]').forEach(field=>{const label=intake.querySelector(`label[for="${field.id}"]`);labels[field.name]=label?label.textContent.trim():field.name});
+      const lines=['TENDER CARE RESPITE SERVICES — FAMILY INTAKE INFORMATION',''];for(const [key,value] of data.entries())if(String(value).trim())lines.push(`${labels[key]||key}: ${String(value).trim()}`);lines.push('','Parent/Guardian signature: ____________________',`Date: ${new Date().toLocaleDateString()}`);
+      try{await navigator.clipboard.writeText(lines.join('\n'));if(status){status.textContent='Intake summary copied. Contact Tender Care to arrange a secure way to provide it.';status.style.display='block'}}catch(e){alert('Copy was not available in this browser. You can use Print / Save PDF instead.')}
     });
   }
 })();
