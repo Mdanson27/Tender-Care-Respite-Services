@@ -1,63 +1,61 @@
 (function(){
   'use strict';
 
-  /* Load the unified responsive system once. */
-  if(!document.querySelector('link[href*="system.css"]')){
-    const link=document.createElement('link');
-    link.rel='stylesheet';
-    link.href='assets/system.css?v=20261025-3';
-    link.dataset.tcSystem='true';
-    document.head.appendChild(link);
-  }
+  /* Repair any mojibake introduced during route migration before the loader exits. */
+  const repairs=[
+    [/\u00e2\u20ac\u00a2/g,'\u2022'],
+    [/\u00e2\u02dc\u00b0/g,'\u2630'],
+    [/\u00e2\u20ac\u2122/g,'\u2019'],
+    [/\u00c2\u00a9/g,'\u00a9'],
+    [/\u00e2\u2020\u2018/g,'\u2191'],
+    [/\u00e2\u02dc\u017d/g,'\u260e'],
+    [/\u00e2\u2020\u2019/g,'\u2192'],
+    [/\u00e2\u20ac\u201c/g,'\u2013'],
+    [/\u00e2\u20ac\u201d/g,'\u2014'],
+    [/\u00e2\u20ac\u0153/g,'\u201c'],
+    [/\u00c2\u00a0/g,' ']
+  ];
+  const repairText=value=>{
+    let next=value;
+    repairs.forEach(([bad,good])=>{next=next.replace(bad,good)});
+    return next;
+  };
+  const sanitizeDocument=()=>{
+    const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+    const nodes=[];
+    while(walker.nextNode()){
+      const parent=walker.currentNode.parentElement;
+      if(!parent||parent.closest('script,style,noscript'))continue;
+      nodes.push(walker.currentNode);
+    }
+    nodes.forEach(node=>{const fixed=repairText(node.nodeValue||'');if(fixed!==node.nodeValue)node.nodeValue=fixed});
+    document.querySelectorAll('[title],[aria-label],[placeholder]').forEach(el=>{
+      ['title','aria-label','placeholder'].forEach(name=>{
+        if(el.hasAttribute(name))el.setAttribute(name,repairText(el.getAttribute(name)||''));
+      });
+    });
+  };
+  sanitizeDocument();
 
   document.querySelectorAll('.flip-hint').forEach(el=>el.remove());
 
-  /* Keep Team + Careers available throughout the site without duplicating markup. */
-  const nav=document.querySelector('.nav-links');
-  if(nav){
-    const contact=nav.querySelector('a[href="contact.html"]');
-    if(contact&&!nav.querySelector('a[href="team.html"]')){
-      const team=document.createElement('a');
-      team.href='team.html';team.textContent='Team';
-      if(document.body.classList.contains('page-team'))team.classList.add('active');
-      nav.insertBefore(team,contact);
-    }
-    if(contact&&!nav.querySelector('a[href="careers.html"]')){
-      const careers=document.createElement('a');
-      careers.href='careers.html';careers.textContent='Careers';
-      if(document.body.classList.contains('page-careers'))careers.classList.add('active');
-      nav.insertBefore(careers,contact);
-    }
-  }
-
-  document.querySelectorAll('.footer-links').forEach(list=>{
-    if(!list.querySelector('a[href="about.html"]'))return;
-    if(!list.querySelector('a[href="team.html"]')){const li=document.createElement('li');li.innerHTML='<a href="team.html">Professional Team</a>';list.appendChild(li)}
-    if(!list.querySelector('a[href="careers.html"]')){const li=document.createElement('li');li.innerHTML='<a href="careers.html">Careers</a>';list.appendChild(li)}
-  });
-
-  /* Smart loader: brief on the first visit only, skipped during the rest of the session. */
+  /* Loader appears on every real page load/refresh, but remains brief for speed. */
   const loader=document.getElementById('site-loader');
   if(loader){
-    let seen=false;
-    try{seen=sessionStorage.getItem('tc-loader-seen')==='1'}catch(e){}
-    if(seen){
-      loader.remove();
-      document.body.classList.remove('is-loading');
-    }else{
-      try{sessionStorage.setItem('tc-loader-seen','1')}catch(e){}
-      const started=performance.now();
-      const release=()=>{
-        const wait=Math.max(0,850-(performance.now()-started));
-        setTimeout(()=>{
-          loader.classList.add('is-leaving');
-          document.body.classList.remove('is-loading');
-          setTimeout(()=>loader.remove(),520);
-        },wait);
-      };
-      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',release,{once:true});
-      else release();
-    }
+    const started=performance.now();
+    const release=()=>{
+      sanitizeDocument();
+      const wait=Math.max(0,1050-(performance.now()-started));
+      setTimeout(()=>{
+        loader.classList.add('is-leaving');
+        document.body.classList.remove('is-loading');
+        setTimeout(()=>loader.remove(),560);
+      },wait);
+    };
+    if(document.readyState==='complete')release();
+    else window.addEventListener('load',release,{once:true});
+  }else{
+    document.body.classList.remove('is-loading');
   }
 
   const header=document.querySelector('.site-header');
@@ -65,16 +63,37 @@
   updateHeader();
   window.addEventListener('scroll',updateHeader,{passive:true});
 
+  /* Clean-route navigation additions for pages created before Team/Careers existed. */
+  const nav=document.querySelector('.nav-links');
+  if(nav){
+    const contact=[...nav.querySelectorAll('a')].find(a=>/\/contact\/?$/.test(a.getAttribute('href')||''));
+    const hasTeam=[...nav.querySelectorAll('a')].some(a=>/\/team\/?$/.test(a.getAttribute('href')||''));
+    const hasCareers=[...nav.querySelectorAll('a')].some(a=>/\/careers\/?$/.test(a.getAttribute('href')||''));
+    if(contact&&!hasTeam){
+      const a=document.createElement('a');a.href='/team/';a.textContent='Team';if(document.body.classList.contains('page-team'))a.classList.add('active');nav.insertBefore(a,contact);
+    }
+    if(contact&&!hasCareers){
+      const a=document.createElement('a');a.href='/careers/';a.textContent='Careers';if(document.body.classList.contains('page-careers'))a.classList.add('active');nav.insertBefore(a,contact);
+    }
+  }
+
+  document.querySelectorAll('.footer-links').forEach(list=>{
+    const about=[...list.querySelectorAll('a')].some(a=>/\/about\/?$/.test(a.getAttribute('href')||''));
+    if(!about)return;
+    if(![...list.querySelectorAll('a')].some(a=>/\/team\/?$/.test(a.getAttribute('href')||''))){const li=document.createElement('li');li.innerHTML='<a href="/team/">Professional Team</a>';list.appendChild(li)}
+    if(![...list.querySelectorAll('a')].some(a=>/\/careers\/?$/.test(a.getAttribute('href')||''))){const li=document.createElement('li');li.innerHTML='<a href="/careers/">Careers</a>';list.appendChild(li)}
+  });
+
   const toggle=document.querySelector('.nav-toggle');
   const links=document.querySelector('.nav-links');
   if(toggle&&links){
-    const closeNav=()=>{links.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.textContent='☰';document.body.classList.remove('nav-open')};
-    toggle.addEventListener('click',()=>{const open=links.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'✕':'☰';document.body.classList.toggle('nav-open',open)});
+    const closeNav=()=>{links.classList.remove('open');toggle.setAttribute('aria-expanded','false');document.body.classList.remove('nav-open')};
+    toggle.setAttribute('aria-expanded','false');
+    toggle.addEventListener('click',()=>{const open=links.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));document.body.classList.toggle('nav-open',open)});
     links.addEventListener('click',e=>{if(e.target.closest('a'))closeNav()});
     window.addEventListener('resize',()=>{if(window.innerWidth>920)closeNav()},{passive:true});
   }
 
-  /* Lightweight entrance reveals. */
   const revealEls=[...document.querySelectorAll('.reveal')];
   if('IntersectionObserver' in window){
     const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -20px 0px'});
@@ -84,7 +103,9 @@
   document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
 
   document.querySelectorAll('a[href^="tel:"]:not(.floating-call)').forEach(a=>{
-    if(!a.querySelector('.phone-icon')){const icon=document.createElement('span');icon.className='phone-icon';icon.setAttribute('aria-hidden','true');icon.textContent='☎';a.prepend(icon)}
+    if(!a.querySelector('.phone-icon')){
+      const icon=document.createElement('span');icon.className='phone-icon';icon.setAttribute('aria-hidden','true');icon.innerHTML='&#9742;';a.prepend(icon);
+    }
   });
 
   const flipCopy={
@@ -95,8 +116,8 @@
     'School Break & Holiday Support':'Planned support during school closures can help families maintain continuity and structure.',
     'Play & Recreation':'Purposeful play can encourage enjoyment, confidence, creativity, social interaction and age-appropriate independence.',
     'Community Support':'Agreed community activities can create opportunities for participation, recreation and connection beyond the home.',
-    'Individualized Support':'The care plan should reflect the child’s routines, strengths, interests, abilities and family expectations.',
-    'Family Communication':'Clear updates keep parents and caregivers connected to the child’s experience and help care remain aligned over time.',
+    'Individualized Support':'The care plan should reflect the child\u2019s routines, strengths, interests, abilities and family expectations.',
+    'Family Communication':'Clear updates keep parents and caregivers connected to the child\u2019s experience and help care remain aligned over time.',
     'Compassion':'Kindness and patience help children feel heard, understood and emotionally safe.',
     'Safety':'Good care protects both physical well-being and emotional security.',
     'Respect':'Respect means recognizing each child, family, culture, ability and individual difference.',
@@ -113,7 +134,7 @@
     'Call Tender Care':'A direct conversation is the fastest way to discuss services, availability and family-specific questions.',
     'Edmonton Address':'Tender Care Respite Services is listed at 12245 95 St, Edmonton, Alberta.',
     'Directions':'Use the map link for navigation and confirm any planned care arrangement before travelling.',
-    'Child-centred':'Care decisions should begin with the individual child’s routines, strengths, comfort and communication needs.',
+    'Child-centred':'Care decisions should begin with the individual child\u2019s routines, strengths, comfort and communication needs.',
     'Family-focused':'Respite should fit the realities of family life while keeping parents and caregivers informed and involved.',
     'Inclusive':'Respect for ability, culture, communication and individual difference helps children feel that they belong.',
     'Reliable':'Clear expectations, scheduling and communication help families know what they can depend on.'
@@ -128,8 +149,7 @@
     if(!heading||!paragraph)return;
     const title=heading.textContent.trim();
     const reveal=document.createElement('div');
-    reveal.className='card-reveal';
-    reveal.setAttribute('aria-hidden','true');
+    reveal.className='card-reveal';reveal.setAttribute('aria-hidden','true');
     reveal.innerHTML='<span class="card-reveal-label">Why it matters</span><h4></h4><p></p>';
     reveal.querySelector('h4').textContent=title;
     reveal.querySelector('p').textContent=flipCopy[title]||paragraph.textContent.trim();
@@ -152,9 +172,11 @@
     document.querySelector('#clear-intake')?.addEventListener('click',()=>{if(confirm('Clear all information entered in this form?')){intake.reset();if(status)status.style.display='none'}});
     document.querySelector('#copy-intake')?.addEventListener('click',async()=>{
       const data=new FormData(intake),labels={};
-      intake.querySelectorAll('[name]').forEach(field=>{const label=intake.querySelector(`label[for="${field.id}"]`);labels[field.name]=label?label.textContent.trim():field.name});
-      const lines=['TENDER CARE RESPITE SERVICES — FAMILY INTAKE INFORMATION',''];for(const [key,value] of data.entries())if(String(value).trim())lines.push(`${labels[key]||key}: ${String(value).trim()}`);lines.push('','Parent/Guardian signature: ____________________',`Date: ${new Date().toLocaleDateString()}`);
+      intake.querySelectorAll('[name]').forEach(field=>{const label=intake.querySelector('label[for="'+field.id+'"]');labels[field.name]=label?label.textContent.trim():field.name});
+      const lines=['TENDER CARE RESPITE SERVICES - FAMILY INTAKE INFORMATION',''];for(const [key,value] of data.entries())if(String(value).trim())lines.push((labels[key]||key)+': '+String(value).trim());lines.push('','Parent/Guardian signature: ____________________','Date: '+new Date().toLocaleDateString());
       try{await navigator.clipboard.writeText(lines.join('\n'));if(status){status.textContent='Intake summary copied. Contact Tender Care to arrange a secure way to provide it.';status.style.display='block'}}catch(e){alert('Copy was not available in this browser. You can use Print / Save PDF instead.')}
     });
   }
+
+  sanitizeDocument();
 })();
