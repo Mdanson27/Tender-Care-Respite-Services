@@ -1,5 +1,46 @@
 (function(){
   document.querySelectorAll('.flip-hint').forEach(el=>el.remove());
+
+  /* Careers + Team integration */
+  if(document.body.classList.contains('page-careers')||document.body.classList.contains('page-team')){
+    if(!document.querySelector('link[href*="careers-team.css"]')){
+      const extra=document.createElement('link');
+      extra.rel='stylesheet';
+      extra.href='assets/careers-team.css?v=20261025-1';
+      document.head.appendChild(extra);
+    }
+  }
+
+  const nav=document.querySelector('.nav-links');
+  if(nav){
+    const contact=nav.querySelector('a[href="contact.html"]');
+    if(contact&&!nav.querySelector('a[href="team.html"]')){
+      const team=document.createElement('a');
+      team.href='team.html';
+      team.textContent='Team';
+      if(document.body.classList.contains('page-team'))team.classList.add('active');
+      nav.insertBefore(team,contact);
+    }
+    if(contact&&!nav.querySelector('a[href="careers.html"]')){
+      const careers=document.createElement('a');
+      careers.href='careers.html';
+      careers.textContent='Careers';
+      if(document.body.classList.contains('page-careers'))careers.classList.add('active');
+      nav.insertBefore(careers,contact);
+    }
+  }
+
+  document.querySelectorAll('.footer-links').forEach(list=>{
+    const about=list.querySelector('a[href="about.html"]');
+    if(!about)return;
+    if(!list.querySelector('a[href="team.html"]')){
+      const li=document.createElement('li');li.innerHTML='<a href="team.html">Professional Team</a>';list.appendChild(li);
+    }
+    if(!list.querySelector('a[href="careers.html"]')){
+      const li=document.createElement('li');li.innerHTML='<a href="careers.html">Careers</a>';list.appendChild(li);
+    }
+  });
+
   const loader=document.getElementById('site-loader');
   if(loader){
     const started=performance.now();
@@ -47,10 +88,7 @@
 
   const io='IntersectionObserver' in window?new IntersectionObserver(entries=>{
     entries.forEach(e=>{
-      if(e.isIntersecting){
-        e.target.classList.add('in');
-        io.unobserve(e.target);
-      }
+      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
     });
   },{threshold:.12,rootMargin:'0px 0px -30px 0px'}):null;
   document.querySelectorAll('.reveal').forEach((el,i)=>{
@@ -60,7 +98,6 @@
 
   document.querySelectorAll('[data-year]').forEach(el=>el.textContent=new Date().getFullYear());
 
-  /* Consistent phone icon wherever a telephone action appears */
   document.querySelectorAll('a[href^="tel:"]:not(.floating-call)').forEach(a=>{
     if(!a.querySelector('.phone-icon')){
       const icon=document.createElement('span');
@@ -111,92 +148,33 @@
     if(!heading||!paragraph)return;
     const title=heading.textContent.trim();
     const detail=flipCopy[title]||paragraph.textContent.trim();
-    card.classList.add('interactive-card');
-    card.tabIndex=0;
-    card.setAttribute('role','button');
-    card.setAttribute('aria-expanded','false');
-const reveal=document.createElement('div');
-    reveal.className='card-reveal';
-    reveal.setAttribute('aria-hidden','true');
-    reveal.innerHTML='<span class="card-reveal-label">Why it matters</span><h4></h4><p></p>';
-    reveal.querySelector('h4').textContent=title;
-    reveal.querySelector('p').textContent=detail;
-    card.appendChild(reveal);
-
-    const toggleCard=()=>{
-      document.querySelectorAll('.interactive-card.is-flipped').forEach(other=>{if(other!==card){other.classList.remove('is-flipped');other.setAttribute('aria-expanded','false');const r=other.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden','true')}});
-      const open=card.classList.toggle('is-flipped');
-      card.setAttribute('aria-expanded',String(open));
-      reveal.setAttribute('aria-hidden',String(!open));
-    };
-    card.addEventListener('click',e=>{
-      if(e.target.closest('a,button,input,textarea,select,summary'))return;
-      if(window.matchMedia('(hover:none)').matches)toggleCard();
-    });
-    card.addEventListener('keydown',e=>{
-      if(e.key==='Enter'||e.key===' '){
-        e.preventDefault();
-        toggleCard();
-      }
-    });
-    card.addEventListener('mouseleave',()=>{
-      if(!window.matchMedia('(hover:none)').matches){
-        card.classList.remove('is-flipped');
-        card.setAttribute('aria-expanded','false');
-        reveal.setAttribute('aria-hidden','true');
-      }
-    });
+    card.classList.add('interactive-card');card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-expanded','false');
+    const reveal=document.createElement('div');reveal.className='card-reveal';reveal.setAttribute('aria-hidden','true');reveal.innerHTML='<span class="card-reveal-label">Why it matters</span><h4></h4><p></p>';
+    reveal.querySelector('h4').textContent=title;reveal.querySelector('p').textContent=detail;card.appendChild(reveal);
+    const toggleCard=()=>{document.querySelectorAll('.interactive-card.is-flipped').forEach(other=>{if(other!==card){other.classList.remove('is-flipped');other.setAttribute('aria-expanded','false');const r=other.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden','true')}});const open=card.classList.toggle('is-flipped');card.setAttribute('aria-expanded',String(open));reveal.setAttribute('aria-hidden',String(!open));};
+    card.addEventListener('click',e=>{if(e.target.closest('a,button,input,textarea,select,summary'))return;if(window.matchMedia('(hover:none)').matches)toggleCard();});
+    card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleCard();}});
+    card.addEventListener('mouseleave',()=>{if(!window.matchMedia('(hover:none)').matches){card.classList.remove('is-flipped');card.setAttribute('aria-expanded','false');reveal.setAttribute('aria-hidden','true');}});
   });
 
   document.addEventListener('click',e=>{
     if(!window.matchMedia('(hover:none)').matches)return;
     if(e.target.closest('.interactive-card'))return;
-    document.querySelectorAll('.interactive-card.is-flipped').forEach(card=>{
-      card.classList.remove('is-flipped');
-      card.setAttribute('aria-expanded','false');
-      const r=card.querySelector('.card-reveal');
-      if(r)r.setAttribute('aria-hidden','true');
-    });
+    document.querySelectorAll('.interactive-card.is-flipped').forEach(card=>{card.classList.remove('is-flipped');card.setAttribute('aria-expanded','false');const r=card.querySelector('.card-reveal');if(r)r.setAttribute('aria-hidden','true');});
   });
 
   const back=document.querySelector('.back-top');
-  if(back){
-    const state=()=>back.classList.toggle('show',window.scrollY>650);
-    state();
-    window.addEventListener('scroll',state,{passive:true});
-    back.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-  }
+  if(back){const state=()=>back.classList.toggle('show',window.scrollY>650);state();window.addEventListener('scroll',state,{passive:true});back.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));}
 
   const intake=document.querySelector('#intake-form');
   if(intake){
     const status=document.querySelector('#form-status');
     document.querySelector('#print-intake')?.addEventListener('click',()=>window.print());
-    document.querySelector('#clear-intake')?.addEventListener('click',()=>{
-      if(confirm('Clear all information entered in this form?')){
-        intake.reset();
-        if(status)status.style.display='none';
-      }
-    });
+    document.querySelector('#clear-intake')?.addEventListener('click',()=>{if(confirm('Clear all information entered in this form?')){intake.reset();if(status)status.style.display='none';}});
     document.querySelector('#copy-intake')?.addEventListener('click',async()=>{
-      const data=new FormData(intake),labels={};
-      intake.querySelectorAll('[name]').forEach(field=>{
-        const label=intake.querySelector(`label[for="${field.id}"]`);
-        labels[field.name]=label?label.textContent.trim():field.name;
-      });
-      const lines=['TENDER CARE RESPITE SERVICES — FAMILY INTAKE INFORMATION',''];
-      for(const [key,value] of data.entries()){
-        if(String(value).trim())lines.push(`${labels[key]||key}: ${String(value).trim()}`);
-      }
-      lines.push('','Parent/Guardian signature: ____________________',`Date: ${new Date().toLocaleDateString()}`);
-      try{
-        await navigator.clipboard.writeText(lines.join('\n'));
-        if(status){
-          status.textContent='Intake summary copied. Contact Tender Care to arrange a secure way to provide it.';
-          status.style.display='block';
-        }
-      }catch(e){
-        alert('Copy was not available in this browser. You can use Print / Save PDF instead.');
-      }
+      const data=new FormData(intake),labels={};intake.querySelectorAll('[name]').forEach(field=>{const label=intake.querySelector(`label[for="${field.id}"]`);labels[field.name]=label?label.textContent.trim():field.name;});
+      const lines=['TENDER CARE RESPITE SERVICES — FAMILY INTAKE INFORMATION',''];for(const [key,value] of data.entries()){if(String(value).trim())lines.push(`${labels[key]||key}: ${String(value).trim()}`);}lines.push('','Parent/Guardian signature: ____________________',`Date: ${new Date().toLocaleDateString()}`);
+      try{await navigator.clipboard.writeText(lines.join('\n'));if(status){status.textContent='Intake summary copied. Contact Tender Care to arrange a secure way to provide it.';status.style.display='block';}}catch(e){alert('Copy was not available in this browser. You can use Print / Save PDF instead.');}
     });
   }
 })();
