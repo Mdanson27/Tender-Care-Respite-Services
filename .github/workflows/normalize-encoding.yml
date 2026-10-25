@@ -2,7 +2,8 @@ name: Normalize website encoding
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -10,55 +11,20 @@ permissions:
 
 jobs:
   normalize:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Repair HTML encoding and refresh frontend cache
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
+      - name: Normalize HTML files
+        run: python scripts/normalize_encoding.py
 
-          replacements = {
-              'â€¢': '&bull;',
-              'â˜°': '&#9776;',
-              'â€™': '&rsquo;',
-              'Â©': '&copy;',
-              'â†‘': '&#8593;',
-              'â˜Ž': '&#9742;',
-              'â†’': '&rarr;',
-              'â€“': '&ndash;',
-              'â€”': '&mdash;',
-              'â€œ': '&ldquo;',
-              'â€': '&rdquo;',
-              'Â ': ' ',
-          }
-
-          for path in Path('.').rglob('*.html'):
-              text = path.read_text(encoding='utf-8-sig')
-              for bad, good in replacements.items():
-                  text = text.replace(bad, good)
-              for old in (
-                  'script.js?v=20261025-3',
-                  'script.js?v=20261025-2',
-                  'script.js?v=20261002-3',
-                  'script.js?v=20261002-2',
-                  'script.js?v=20261002-1',
-              ):
-                  text = text.replace(old, 'script.js?v=20261025-4')
-              path.write_text(text, encoding='utf-8', newline='\n')
-          PY
-
-      - name: Commit normalized pages
-        shell: bash
+      - name: Commit fixes when needed
         run: |
           if git diff --quiet; then
-            echo "No encoding fixes required."
+            echo "No fixes needed"
             exit 0
           fi
           git config user.name "github-actions[bot]"
