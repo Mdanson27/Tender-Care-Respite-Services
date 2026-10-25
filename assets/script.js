@@ -2,7 +2,7 @@
   'use strict';
 
   /* Load the unified responsive system once. */
-  if(!document.querySelector('link[data-tc-system]')){
+  if(!document.querySelector('link[href*="system.css"]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
     link.href='assets/system.css?v=20261025-3';
