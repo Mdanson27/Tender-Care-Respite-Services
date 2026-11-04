@@ -1819,3 +1819,7 @@ body::before{height:3px;background:linear-gradient(90deg,var(--red),var(--orange
   }
   .hero-slide:first-child{opacity:1}
 }
+
+/* Restore photographic family CTA instead of flat grey fallback */
+.family-banner{background-color:#203d4b!important;background-image:linear-gradient(90deg,rgba(8,28,43,.68),rgba(8,28,43,.48)),url('/09_caregiver_connection.jpg')!important;background-size:cover!important;background-position:center 42%!important;background-repeat:no-repeat!important}
+.family-banner-overlay{background:transparent!important}
